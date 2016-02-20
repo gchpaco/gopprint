@@ -236,7 +236,7 @@ func output(in <-chan streamElt, width int, output io.Writer) error {
 					fittingElements--
 				}
 			case *nbegElt:
-				indent = append(indent, elt.hpos)
+				indent = append(indent, hpos)
 			case *nendElt:
 				if len(indent) > 0 {
 					indent = indent[0 : len(indent)-1]
