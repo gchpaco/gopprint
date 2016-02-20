@@ -87,7 +87,21 @@ func annotateLastChar(in <-chan streamElt) <-chan streamElt {
 	return ch
 }
 
-type lookaheadStack []streamElt
+type lookaheads [][]streamElt
+
+func (s lookaheads) addToLast(element ...streamElt) {
+	last := len(s) - 1
+	s[last] = append(s[last], element...)
+}
+
+func (s lookaheads) pushNew() lookaheads {
+	return append(s, make([]streamElt, 0))
+}
+
+func (s lookaheads) pop() ([]streamElt, lookaheads) {
+	last := len(s) - 1
+	return s[last], s[0:last]
+}
 
 // annotateGBeg is the next step; we take the horizontal position
 // information gotten from `annotateLastChar` and compute the `hpos`
@@ -97,7 +111,7 @@ func annotateGBeg(in <-chan streamElt) <-chan streamElt {
 	ch := make(chan streamElt)
 	go func() {
 		defer close(ch)
-		var lookahead []lookaheadStack
+		var lookahead lookaheads
 		for {
 			select {
 			case element, ok := <-in:
@@ -109,16 +123,13 @@ func annotateGBeg(in <-chan streamElt) <-chan streamElt {
 					if len(lookahead) == 0 {
 						ch <- element
 					} else {
-						last := len(lookahead) - 1
-						lookahead[last] = append(lookahead[last], element)
+						lookahead.addToLast(element)
 					}
 				case *gbegElt:
-					newList := make(lookaheadStack, 0)
-					lookahead = append(lookahead, newList)
+					lookahead = lookahead.pushNew()
 				case *gendElt:
-					last := len(lookahead) - 1
-					top := lookahead[last]
-					lookahead = lookahead[0:last]
+					var top []streamElt
+					top, lookahead = lookahead.pop()
 					if len(lookahead) == 0 {
 						// this, then, was the topmost stack
 						ch <- &gbegElt{elt{element.hpos}}
@@ -127,11 +138,9 @@ func annotateGBeg(in <-chan streamElt) <-chan streamElt {
 						}
 						ch <- element
 					} else {
-						newtop := lookahead[last-1]
-						newtop = append(newtop, &gbegElt{elt{element.hpos}})
-						newtop = append(newtop, top...)
-						newtop = append(newtop, element)
-						lookahead[last-1] = newtop
+						lookahead.addToLast(&gbegElt{elt{element.hpos}})
+						lookahead.addToLast(top...)
+						lookahead.addToLast(element)
 					}
 				}
 			}
