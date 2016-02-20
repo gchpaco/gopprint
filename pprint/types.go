@@ -6,7 +6,7 @@ import "fmt"
 // primitives.
 type Element interface {
 	Width() int
-	Debug() string
+	String() string
 }
 
 type Text struct {
@@ -17,7 +17,7 @@ func (d *Text) Width() int {
 	return len(d.text)
 }
 
-func (d *Text) Debug() string {
+func (d *Text) String() string {
 	return fmt.Sprintf(`Text("%s")`, d.text)
 }
 
@@ -33,7 +33,7 @@ func (d *Cond) Width() int {
 	return len(d.small)
 }
 
-func (d *Cond) Debug() string {
+func (d *Cond) String() string {
 	return fmt.Sprintf(`Cond("%s","%s","%s")`, d.small, d.continuation, d.tail)
 }
 
@@ -48,7 +48,7 @@ func (d *LineBreak) Width() int {
 	return 0
 }
 
-func (d *LineBreak) Debug() string {
+func (d *LineBreak) String() string {
 	return "CR"
 }
 
@@ -64,10 +64,10 @@ func (d *Concat) Width() int {
 	return w
 }
 
-func (d *Concat) Debug() string {
+func (d *Concat) String() string {
 	w := ""
 	for _, elt := range d.children {
-		w += elt.Debug()
+		w += elt.String()
 	}
 	return w
 }
@@ -84,8 +84,8 @@ func (d *Group) Width() int {
 	return d.child.Width()
 }
 
-func (d *Group) Debug() string {
-	return fmt.Sprintf(`Group(%s)`, d.child.Debug())
+func (d *Group) String() string {
+	return fmt.Sprintf(`Group(%s)`, d.child.String())
 }
 
 func NewGroup(element Element) Element {
@@ -100,8 +100,8 @@ func (d *Nest) Width() int {
 	return d.child.Width()
 }
 
-func (d *Nest) Debug() string {
-	return fmt.Sprintf(`Nest(%s)`, d.child.Debug())
+func (d *Nest) String() string {
+	return fmt.Sprintf(`Nest(%s)`, d.child.String())
 }
 
 func NewNest(element Element) Element {
