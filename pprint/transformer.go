@@ -2,6 +2,7 @@ package pprint
 
 import (
 	"io"
+	"strings"
 )
 
 // toStream recursively converts a document into the stream elements
@@ -167,7 +168,7 @@ func output(in <-chan streamElt, width int, output io.Writer) error {
 			}
 			switch elt := elt.(type) {
 			case *textElt:
-				_, err := output.Write(([]byte)(elt.payload))
+				_, err := io.WriteString(output, elt.payload)
 				if err != nil {
 					return err
 				}
@@ -180,21 +181,19 @@ func output(in <-chan streamElt, width int, output io.Writer) error {
 					} else {
 						currentIndent = indent[len(indent)-1]
 					}
-					_, err := output.Write(([]byte)(elt.tail))
+					_, err := io.WriteString(output, elt.tail)
 					if err != nil {
 						return err
 					}
-					_, err = output.Write(([]byte)("\n"))
+					_, err = io.WriteString(output, "\n")
 					if err != nil {
 						return err
 					}
-					for i := 0; i < currentIndent; i++ {
-						_, err := output.Write(([]byte)(" "))
-						if err != nil {
-							return err
-						}
+					_, err = io.WriteString(output, strings.Repeat(" ", currentIndent))
+					if err != nil {
+						return err
 					}
-					_, err = output.Write(([]byte)(elt.cont))
+					_, err = io.WriteString(output, elt.cont)
 					if err != nil {
 						return err
 					}
@@ -202,7 +201,7 @@ func output(in <-chan streamElt, width int, output io.Writer) error {
 					hpos = currentIndent + len(elt.cont)
 					rightEdge = (width - hpos) + elt.hpos
 				} else {
-					_, err := output.Write(([]byte)(elt.small))
+					_, err := io.WriteString(output, elt.small)
 					if err != nil {
 						return err
 					}
@@ -215,15 +214,13 @@ func output(in <-chan streamElt, width int, output io.Writer) error {
 				} else {
 					currentIndent = indent[len(indent)-1]
 				}
-				_, err := output.Write(([]byte)("\n"))
+				_, err := io.WriteString(output, "\n")
 				if err != nil {
 					return err
 				}
-				for i := 0; i < currentIndent; i++ {
-					_, err := output.Write(([]byte)(" "))
-					if err != nil {
-						return err
-					}
+				_, err = io.WriteString(output, strings.Repeat(" ", currentIndent))
+				if err != nil {
+					return err
 				}
 				fittingElements = 0
 				hpos = currentIndent
