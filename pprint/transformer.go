@@ -10,6 +10,7 @@ import (
 func toStream(document Element) <-chan streamElt {
 	ch := make(chan streamElt)
 	go func() {
+		defer close(ch)
 		visitElement(document, ch)
 	}()
 	return ch
@@ -49,6 +50,7 @@ func visitElement(document Element, out chan<- streamElt) {
 func annotateLastChar(in <-chan streamElt) <-chan streamElt {
 	ch := make(chan streamElt)
 	go func() {
+		defer close(ch)
 		position := 0
 		for {
 			select {
@@ -94,6 +96,7 @@ type lookaheadStack []streamElt
 func annotateGBeg(in <-chan streamElt) <-chan streamElt {
 	ch := make(chan streamElt)
 	go func() {
+		defer close(ch)
 		var lookahead []lookaheadStack
 		for {
 			select {
