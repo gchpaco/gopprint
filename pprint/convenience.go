@@ -42,7 +42,7 @@ func NewDottedList(elements ...Element) Element {
 	} else if len(elements) == 1 {
 		return NewNest(elements[0])
 	}
-	elts := make([]Element, len(elements)*3-2)
+	elts := make([]Element, len(elements)*2-1)
 	pos := 0
 	for _, elt := range elements {
 		if pos == 0 {
