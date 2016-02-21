@@ -17,12 +17,12 @@ func assertStream(t *testing.T, in <-chan streamElt, elements ...string) {
 }
 
 func TestStreamification(t *testing.T) {
-	doc := NewDottedList(NewFuncall("expr", NewText("5")),
-		NewFuncall("add", NewDottedList(NewFuncall("expr", NewText("7")),
-			NewFuncall("frob"))),
-		NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17")))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))))))
+	doc := DottedList(Funcall("expr", Text("5")),
+		Funcall("add", DottedList(Funcall("expr", Text("7")),
+			Funcall("frob"))),
+		Funcall("mul", DottedList(Funcall("expr", Text("17"))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17")))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17"))))))
 
 	ch := toStream(doc)
 	assertStream(t, ch,
@@ -129,12 +129,12 @@ func TestStreamification(t *testing.T) {
 }
 
 func TestLastChar(t *testing.T) {
-	doc := NewDottedList(NewFuncall("expr", NewText("5")),
-		NewFuncall("add", NewDottedList(NewFuncall("expr", NewText("7")),
-			NewFuncall("frob"))),
-		NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17")))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))))))
+	doc := DottedList(Funcall("expr", Text("5")),
+		Funcall("add", DottedList(Funcall("expr", Text("7")),
+			Funcall("frob"))),
+		Funcall("mul", DottedList(Funcall("expr", Text("17"))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17")))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17"))))))
 
 	ch := annotateLastChar(toStream(doc))
 	assertStream(t, ch,
@@ -241,12 +241,12 @@ func TestLastChar(t *testing.T) {
 }
 
 func TestGBeg(t *testing.T) {
-	doc := NewDottedList(NewFuncall("expr", NewText("5")),
-		NewFuncall("add", NewDottedList(NewFuncall("expr", NewText("7")),
-			NewFuncall("frob"))),
-		NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17")))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))))))
+	doc := DottedList(Funcall("expr", Text("5")),
+		Funcall("add", DottedList(Funcall("expr", Text("7")),
+			Funcall("frob"))),
+		Funcall("mul", DottedList(Funcall("expr", Text("17"))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17")))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17"))))))
 
 	ch := annotateGBeg(annotateLastChar(toStream(doc)))
 	assertStream(t, ch,

@@ -18,7 +18,7 @@ func Output(elt Element, width int) (string, error) {
 }
 
 func TestSimpleText(t *testing.T) {
-	handle := NewText("Some text")
+	handle := Text("Some text")
 
 	out, err := Output(handle, 10)
 	if assert.NoError(t, err) {
@@ -31,8 +31,8 @@ func TestSimpleText(t *testing.T) {
 }
 
 func TestSimpleCond(t *testing.T) {
-	handle := NewConcat(NewText("Some text"), CondLB,
-		NewText("Some more text"))
+	handle := Concat(Text("Some text"), CondLB,
+		Text("Some more text"))
 
 	out, err := Output(handle, 80)
 	if assert.NoError(t, err) {
@@ -45,7 +45,7 @@ func TestSimpleCond(t *testing.T) {
 		assert.Equal(t, "Some text\nSome more text", out)
 	}
 
-	handle = NewGroup(handle)
+	handle = Group(handle)
 
 	out, err = Output(handle, 80)
 	if assert.NoError(t, err) {
@@ -58,10 +58,10 @@ func TestSimpleCond(t *testing.T) {
 }
 
 func TestCondWithTail(t *testing.T) {
-	handle := NewDottedList(NewText("a"),
-		NewFuncall("b", NewText("16"), NewText("18")),
-		NewText("field"),
-		NewFuncall("c", NewText("18")))
+	handle := DottedList(Text("a"),
+		Funcall("b", Text("16"), Text("18")),
+		Text("field"),
+		Funcall("c", Text("18")))
 
 	out, err := Output(handle, 80)
 	if assert.NoError(t, err) {
@@ -77,12 +77,12 @@ func TestCondWithTail(t *testing.T) {
 }
 
 func TestInvolved(t *testing.T) {
-	handle := NewDottedList(NewFuncall("expr", NewText("5")),
-		NewFuncall("add", NewDottedList(NewFuncall("expr", NewText("7")),
-			NewFuncall("frob"))),
-		NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17")))),
-			NewFuncall("mul", NewDottedList(NewFuncall("expr", NewText("17"))))))
+	handle := DottedList(Funcall("expr", Text("5")),
+		Funcall("add", DottedList(Funcall("expr", Text("7")),
+			Funcall("frob"))),
+		Funcall("mul", DottedList(Funcall("expr", Text("17"))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17")))),
+			Funcall("mul", DottedList(Funcall("expr", Text("17"))))))
 
 	out, err := Output(handle, 180)
 	if assert.NoError(t, err) {

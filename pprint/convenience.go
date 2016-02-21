@@ -1,14 +1,14 @@
 package pprint
 
 var (
-	comma  = NewText(",")
-	dot    = NewText(".")
-	lparen = NewText("(")
-	rparen = NewText(")")
+	comma  = Text(",")
+	dot    = Text(".")
+	lparen = Text("(")
+	rparen = Text(")")
 )
 
-// NewCSV wraps `elements` with a comma separated list.
-func NewCSV(elements ...Element) Element {
+// CSV wraps `elements` with a comma separated list.
+func CSV(elements ...Element) Element {
 	if len(elements) == 0 {
 		return Empty
 	}
@@ -25,22 +25,22 @@ func NewCSV(elements ...Element) Element {
 			pos += 3
 		}
 	}
-	return NewNest(NewConcat(elts...))
+	return Nest(Concat(elts...))
 }
 
-// NewArgs formats `elements` in a manner suitable for C style
+// Args formats `elements` in a manner suitable for C style
 // arguments.
-func NewArgs(elements ...Element) Element {
-	return NewConcat(lparen, NewCSV(elements...), rparen)
+func Args(elements ...Element) Element {
+	return Concat(lparen, CSV(elements...), rparen)
 }
 
-// NewDottedList formats `elements` in a manner suitable for chained
+// DottedList formats `elements` in a manner suitable for chained
 // method calls, á la "fluent" interfaces.
-func NewDottedList(elements ...Element) Element {
+func DottedList(elements ...Element) Element {
 	if len(elements) == 0 {
 		return Empty
 	} else if len(elements) == 1 {
-		return NewNest(elements[0])
+		return Nest(elements[0])
 	}
 	elts := make([]Element, len(elements)*2-1)
 	pos := 0
@@ -59,14 +59,14 @@ func NewDottedList(elements ...Element) Element {
 			pos += 2
 		}
 	}
-	// Bit involved; we want NewDottedList(a, b, c) to turn into
+	// Bit involved; we want DottedList(a, b, c) to turn into
 	// Concat(a, Nest(Concat(".", b, DotLB, c))).  We want this
 	// because it means that the dots line up on linebreaks nicely.
-	return NewConcat(elts[0], NewNest(NewConcat(elts[1:]...)))
+	return Concat(elts[0], Nest(Concat(elts[1:]...)))
 }
 
-// NewFuncall formats `args` as a function call of the function
+// Funcall formats `args` as a function call of the function
 // `name`.
-func NewFuncall(name string, args ...Element) Element {
-	return NewConcat(NewText(name), NewArgs(args...))
+func Funcall(name string, args ...Element) Element {
+	return Concat(Text(name), Args(args...))
 }

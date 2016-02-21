@@ -32,8 +32,8 @@ func (d *text) String() string {
 func (d *text) private() {
 }
 
-// NewText constructs an Element for the given text string.
-func NewText(payload string) Element {
+// Text constructs an Element for the given text string.
+func Text(payload string) Element {
 	return &text{text: payload}
 }
 
@@ -52,10 +52,10 @@ func (d *cond) String() string {
 func (d *cond) private() {
 }
 
-// NewCond constructs an Element that, if there is room, will render
+// Cond constructs an Element that, if there is room, will render
 // as `small`; if there is not room, it will render as `tail`, a line
 // break, any required indentation, and then `cont`.
-func NewCond(small, cont, tail string) Element {
+func Cond(small, cont, tail string) Element {
 	return &cond{small: small, continuation: cont, tail: tail}
 }
 
@@ -96,8 +96,8 @@ func (d *concat) String() string {
 func (d *concat) private() {
 }
 
-// NewConcat concatenates `elements` into a new Element.
-func NewConcat(elements ...Element) Element {
+// Concat concatenates `elements` into a new Element.
+func Concat(elements ...Element) Element {
 	return &concat{children: elements}
 }
 
@@ -116,10 +116,10 @@ func (d *group) String() string {
 func (d *group) private() {
 }
 
-// NewGroup wraps `element` in a type that ensures all line break
+// Group wraps `element` in a type that ensures all line break
 // decisions will be consistent; either they will all break, or all
 // not break.
-func NewGroup(element Element) Element {
+func Group(element Element) Element {
 	return &group{child: element}
 }
 
@@ -138,23 +138,23 @@ func (d *nest) String() string {
 func (d *nest) private() {
 }
 
-// NewNest wraps `element` in a type similar to `NewGroup` that
+// Nest wraps `element` in a type similar to `Group` that
 // ensures all line break decisions will be consistent, and also
 // enforces that any line break must indent at least as much as the
-// start of the `NewNest` element.
-func NewNest(element Element) Element {
+// start of the `Nest` element.
+func Nest(element Element) Element {
 	return &nest{child: element}
 }
 
 var (
 	// Empty is a convenience variable for an empty Element.
-	Empty = NewText("")
+	Empty = Text("")
 	// CondLB is a convenience variable for a conditional space-or-linebreak.
-	CondLB = NewCond(" ", "", "")
+	CondLB = Cond(" ", "", "")
 	// DotLB is a convenience variable for a conditional
 	// dot-or-linebreak-and-then-dot; for example for formatting
 	// chained methods.
-	DotLB = NewCond(".", ".", "")
+	DotLB = Cond(".", ".", "")
 	// LB is an unconditional line break.
 	LB = new(linebreak)
 )
