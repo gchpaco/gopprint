@@ -5,58 +5,79 @@ import "fmt"
 // Element is a catch all type for the various pretty printer
 // primitives.
 type Element interface {
+	// Width yields how many characters Element would take on a line
+	// without wrapping.
 	Width() int
+	// String renders the Element in a debug-suitable form.
 	String() string
+	// private here is to make sure other packages cannot add new
+	// types; new types will break the tree renderer (which could be
+	// worked around) but also most new types you would want to add
+	// require new stream primitives.
+	private()
 }
 
-type Text struct {
+type text struct {
 	text string
 }
 
-func (d *Text) Width() int {
+func (d *text) Width() int {
 	return len(d.text)
 }
 
-func (d *Text) String() string {
+func (d *text) String() string {
 	return fmt.Sprintf(`Text("%s")`, d.text)
 }
 
-func NewText(text string) Element {
-	return &Text{text: text}
+func (d *text) private() {
 }
 
-type Cond struct {
+// NewText constructs an Element for the given text string.
+func NewText(payload string) Element {
+	return &text{text: payload}
+}
+
+type cond struct {
 	small, continuation, tail string
 }
 
-func (d *Cond) Width() int {
+func (d *cond) Width() int {
 	return len(d.small)
 }
 
-func (d *Cond) String() string {
+func (d *cond) String() string {
 	return fmt.Sprintf(`Cond("%s","%s","%s")`, d.small, d.continuation, d.tail)
 }
 
+func (d *cond) private() {
+}
+
+// NewCond constructs an Element that, if there is room, will render
+// as `small`; if there is not room, it will render as `tail`, a line
+// break, any required indentation, and then `cont`.
 func NewCond(small, cont, tail string) Element {
-	return &Cond{small: small, continuation: cont, tail: tail}
+	return &cond{small: small, continuation: cont, tail: tail}
 }
 
-type LineBreak struct {
+type linebreak struct {
 }
 
-func (d *LineBreak) Width() int {
+func (d *linebreak) Width() int {
 	return 0
 }
 
-func (d *LineBreak) String() string {
+func (d *linebreak) String() string {
 	return "CR"
 }
 
-type Concat struct {
+func (d *linebreak) private() {
+}
+
+type concat struct {
 	children []Element
 }
 
-func (d *Concat) Width() int {
+func (d *concat) Width() int {
 	w := 0
 	for _, elt := range d.children {
 		w += elt.Width()
@@ -64,7 +85,7 @@ func (d *Concat) Width() int {
 	return w
 }
 
-func (d *Concat) String() string {
+func (d *concat) String() string {
 	w := ""
 	for _, elt := range d.children {
 		w += elt.String()
@@ -72,45 +93,68 @@ func (d *Concat) String() string {
 	return w
 }
 
-func NewConcat(elements ...Element) Element {
-	return &Concat{children: elements}
+func (d *concat) private() {
 }
 
-type Group struct {
+// NewConcat concatenates `elements` into a new Element.
+func NewConcat(elements ...Element) Element {
+	return &concat{children: elements}
+}
+
+type group struct {
 	child Element
 }
 
-func (d *Group) Width() int {
+func (d *group) Width() int {
 	return d.child.Width()
 }
 
-func (d *Group) String() string {
+func (d *group) String() string {
 	return fmt.Sprintf(`Group(%s)`, d.child.String())
 }
 
-func NewGroup(element Element) Element {
-	return &Group{child: element}
+func (d *group) private() {
 }
 
-type Nest struct {
+// NewGroup wraps `element` in a type that ensures all line break
+// decisions will be consistent; either they will all break, or all
+// not break.
+func NewGroup(element Element) Element {
+	return &group{child: element}
+}
+
+type nest struct {
 	child Element
 }
 
-func (d *Nest) Width() int {
+func (d *nest) Width() int {
 	return d.child.Width()
 }
 
-func (d *Nest) String() string {
+func (d *nest) String() string {
 	return fmt.Sprintf(`Nest(%s)`, d.child.String())
 }
 
+func (d *nest) private() {
+}
+
+// NewNest wraps `element` in a type similar to `NewGroup` that
+// ensures all line break decisions will be consistent, and also
+// enforces that any line break must indent at least as much as the
+// start of the `NewNest` element.
 func NewNest(element Element) Element {
-	return &Nest{child: element}
+	return &nest{child: element}
 }
 
 var (
-	Empty  = NewText("")
+	// Empty is a convenience variable for an empty Element.
+	Empty = NewText("")
+	// CondLB is a convenience variable for a conditional space-or-linebreak.
 	CondLB = NewCond(" ", "", "")
-	DotLB  = NewCond(".", ".", "")
-	LB     = new(LineBreak)
+	// DotLB is a convenience variable for a conditional
+	// dot-or-linebreak-and-then-dot; for example for formatting
+	// chained methods.
+	DotLB = NewCond(".", ".", "")
+	// LB is an unconditional line break.
+	LB = new(linebreak)
 )

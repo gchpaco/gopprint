@@ -18,21 +18,21 @@ func toStream(document Element) <-chan streamElt {
 
 func visitElement(document Element, out chan<- streamElt) {
 	switch doc := document.(type) {
-	case *Text:
+	case *text:
 		out <- &textElt{elt{-1}, doc.text}
-	case *Cond:
+	case *cond:
 		out <- &condElt{elt{-1}, doc.small, doc.continuation, doc.tail}
-	case *LineBreak:
+	case *linebreak:
 		out <- &crlfElt{elt{-1}}
-	case *Concat:
+	case *concat:
 		for _, elt := range doc.children {
 			visitElement(elt, out)
 		}
-	case *Group:
+	case *group:
 		out <- &gbegElt{elt{-1}}
 		visitElement(doc.child, out)
 		out <- &gendElt{elt{-1}}
-	case *Nest:
+	case *nest:
 		out <- &nbegElt{elt{-1}}
 		out <- &gbegElt{elt{-1}}
 		visitElement(doc.child, out)
