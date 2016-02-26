@@ -12,4 +12,4 @@ we need to do more sophisticated breaks, and I added `nest_t` for
 controllable indentation.
 
  * http://dl.acm.org.sci-hub.io/citation.cfm?id=357115 Oppen, D.C.: Prettyprinting. ACM Trans. Program. Lang. Syst. 2 (1980) 465–483.    Not available online without an ACM subscription.
- * http://okmij.org/ftp/continuations/PPYield/yield-pp.pdf Kiselyov, O., Petyon-Jones, S. and Sabry, A.: Lazy v. Yield: Incremental, Linear Pretty-printing.
+ * http://okmij.org/ftp/continuations/PPYield/yield-pp.pdf Kiselyov, O., Peyton-Jones, S. and Sabry, A.: Lazy v. Yield: Incremental, Linear Pretty-printing.
